@@ -17,4 +17,4 @@ out geom;
 
 Click `Run`. If it is sucessful, go to `Export` and click the `download` button next to GeoJSON. To use this in the code, switch out my `export.geojson` file for the one you have acquired.
 
-You can now run `simulation.py` with your own coastline.
+You can now run `simulate.py` with your own coastline.
