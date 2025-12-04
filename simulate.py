@@ -100,24 +100,45 @@ mask = counts > 0
 sizes_f = sizes[mask]
 counts_f = counts[mask]
 
-logsizes = np.log(sizes_f)
+#change to log(1/ε) instead of log(ε)
+log_inv_sizes = np.log(1.0 / sizes_f)
 logcounts = np.log(counts_f)
 
 #debugging
 print("\nLog-space data:")
-print("log(ε)   | log(N)")
+print("log(1/ε) | log(N)")
 print("-" * 25)
-for ls, lc in zip(logsizes, logcounts):
+for ls, lc in zip(log_inv_sizes, logcounts):
     print(f"{ls:8.4f} | {lc:8.4f}")
 
-coeffs = np.polyfit(logsizes, logcounts, 1)
-fractal_dim = abs(coeffs[0])
+coeffs = np.polyfit(log_inv_sizes, logcounts, 1)
+fractal_dim = coeffs[0]
 
-#plot the coastline with the dimension
+#rasterized boundary
 plt.figure(figsize=(10, 10))
 plt.imshow(grid, origin="lower", cmap='binary', interpolation='nearest')
 plt.title(f"Rasterized Boundary (D = {fractal_dim:.4f})", fontsize=14, fontweight='bold')
 plt.axis('off')
+plt.tight_layout()
+plt.show()
+
+#plot the logs of N(e) and 1/(e)^D
+plt.figure(figsize=(10, 8))
+plt.scatter(log_inv_sizes, logcounts, s=100, alpha=0.7, edgecolors='black', linewidths=1.5, label='Data points')
+fit_line = coeffs[0] * log_inv_sizes + coeffs[1]
+plt.plot(log_inv_sizes, fit_line, 'r--', linewidth=2, label=f'Linear fit (slope = {fractal_dim:.4f})')
+plt.xlabel('log(1/ε) - Inverse Box Size', fontsize=12, fontweight='bold')
+plt.ylabel('log(N) - Number of Boxes', fontsize=12, fontweight='bold')
+plt.title('Fractal Dimension Calculation', fontsize=14, fontweight='bold')
+plt.grid(True, alpha=0.3)
+plt.legend(fontsize=11)
+
+#text box
+textstr = f'Fractal Dimension\nD = {fractal_dim:.4f}'
+props = dict(boxstyle='round', facecolor='wheat', alpha=0.8)
+plt.text(0.05, 0.95, textstr, transform=plt.gca().transAxes, fontsize=13,
+         verticalalignment='top', bbox=props, fontweight='bold')
+
 plt.tight_layout()
 plt.show()
 
